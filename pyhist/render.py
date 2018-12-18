@@ -16,8 +16,6 @@ class IJroi:
     def __repr__(self):
         print(self.roi)
         
-        
-
 
 def show_crop_xy(hist, xy:tuple, size=20, vmax=None, zx=False, zy=False):
     plt.imshow(hist.max(axis=0)[xy[1]-size//2: xy[1]+size//2, xy[0]-size//2: xy[0]+size//2], 
@@ -49,7 +47,7 @@ def show_crop_roi(hist:np.ndarray, roi:IJroi, z_lim=0, vmax=None, size=(10,3)):
     else:
         zyx_proj = xy_crop
     zx_proj = zyx_proj.max(axis=1)
-    zy_proj = zyx_proj.max(axis=2)
+    #zy_proj = zyx_proj.max(axis=2)
     render_xy_xz(xy_proj, zx_proj, vmax, size)
 
 def render_xyz(xy_proj:np.ndarray, zy_proj:np.ndarray, zx_proj:np.ndarray, vmax=None, size=(5,5)):
