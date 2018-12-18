@@ -1,6 +1,23 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from hist import IJroi
+import read_roi
+
+class IJroi:
+    def __init__(self, path):
+        roi = read_roi.read_roi_file(path)
+        self.roi = roi
+        specs = roi[list(roi)[0]]
+        assert specs['type'] == 'rectangle'
+        self.x = specs['left']
+        self.y = specs['top']
+        self.w = specs['width']
+        self.h = specs['height']
+        
+    def __repr__(self):
+        print(self.roi)
+        
+        
+
 
 def show_crop_xy(hist, xy:tuple, size=20, vmax=None, zx=False, zy=False):
     plt.imshow(hist.max(axis=0)[xy[1]-size//2: xy[1]+size//2, xy[0]-size//2: xy[0]+size//2], 

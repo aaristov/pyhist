@@ -39,18 +39,3 @@ def hist3d(table, px:int=20, shift:int=0):
         hist = average_shift_hist(hist)
     return hist, bins
 
-class IJroi:
-    def __init__(self, path):
-        roi = read_roi.read_roi_file(path)
-        self.roi = roi
-        specs = roi[list(roi)[0]]
-        assert specs['type'] == 'rectangle'
-        self.x = specs['left']
-        self.y = specs['top']
-        self.w = specs['width']
-        self.h = specs['height']
-        
-    def __repr__(self):
-        print(self.roi)
-        
-        
