@@ -27,10 +27,11 @@ def get_zyx_from_zola(zola_table:np.ndarray):
     return zyx
 
 def hist3d(zyx, px:int=20, shift:int=0):
+    if px <=0: raise(ValueError(f'px must be positive, got {px}'))
     min_lim = zyx.min(axis=0)
     max_lim = zyx.max(axis=0)
     limits = list(zip(min_lim, max_lim))
-    bins = list(np.floor((max_lim - min_lim)//px))
+    bins = list(np.floor((max_lim - min_lim)/px))
     print(f'pixel: {px}')
     print(f'limits: {limits}')
     print(f'nbins: {bins}')
