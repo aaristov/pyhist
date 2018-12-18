@@ -17,8 +17,11 @@ class IJroi:
         print(self.roi)
         
 
-def show_crop_xy(hist, xy:tuple, size=20, vmax=None, zx=False, zy=False):
-    plt.imshow(hist.max(axis=0)[xy[1]-size//2: xy[1]+size//2, xy[0]-size//2: xy[0]+size//2], 
+def show_crop_xy(hist, xy:tuple=(None,None), size=None, vmax=None, zx=False, zy=False):
+    z_proj = hist.max(axis=0)
+    if xy[0] and xy[1] and size:
+        z_proj = z_proj[xy[1]-size//2: xy[1]+size//2, xy[0]-size//2: xy[0]+size//2]
+    plt.imshow(z_proj, 
                vmax=vmax, 
                cmap='hot')
     plt.show()
