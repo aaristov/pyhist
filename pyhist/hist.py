@@ -5,16 +5,13 @@ from pyhist.iotools import import_zola
 import read_roi
 
 
-def get_hist(path, shift=1):
+def get_hist_zola(path, px=20, shift=1):
     print(f'reading {path}')
     table = import_zola(path)
-    
-    hist, _ = hist3d(table)
-    while shift:
-        hist = average_shift_hist(hist)
-        shift -=1
-    return hist
 
+
+def get_hist3d(zyx, px:int=20, shift:int=0):
+    return hist3d(zyx, px, shift)[0]
 
 def average_shift_hist(a):
     for i in range(a.ndim):
@@ -27,19 +24,43 @@ def get_zyx_from_zola(zola_table:np.ndarray):
     return zyx
 
 def hist3d(zyx, px:int=20, shift:int=0):
-    if px <=0: raise(ValueError(f'px must be positive, got {px}'))
+    '''
+    Generates 3D histogram using numpy with given px and shift.
+    Returns histogram, bins
+    '''
+    if px <=0: raise(ValueError(f'px must be positive number, got {px}'))
     min_lim = zyx.min(axis=0)
     max_lim = zyx.max(axis=0)
     limits = list(zip(min_lim, max_lim))
     bins = list(np.floor((max_lim - min_lim)/px))
-    print(f'pixel: {px}')
-    print(f'limits: {limits}')
-    print(f'nbins: {bins}')
+    #print(f'pixel: {px}')
+    #print(f'limits: {limits}')
+    #print(f'nbins: {bins}')
     hist, bins = np.histogramdd(zyx, bins=bins, range=limits)
-    print(f'hist shape: {hist.shape}')
-    #while shift: 
-    #    shift -= 1
-    #    hist = average_shift_hist(hist)
+    #print(f'hist shape: {hist.shape}')
+    while shift: 
+        shift -= 1
+        hist = average_shift_hist(hist)
+    return hist, bins
+
+def hist2d(yx, px:int=20, shift:int=0):
+    '''
+    Generates 2D histogram using numpy with given px and shift.
+    Returns histogram, bins
+    '''
+    if px <=0: raise(ValueError(f'px must be positive number, got {px}'))
+    min_lim = yx.min(axis=0)
+    max_lim = yx.max(axis=0)
+    limits = list(zip(min_lim, max_lim))
+    bins = list(np.floor((max_lim - min_lim)/px))
+    #print(f'pixel: {px}')
+    #print(f'limits: {limits}')
+    #print(f'nbins: {bins}')
+    hist, bins = np.histogram2d(yx, bins=bins, range=limits)
+    #print(f'hist shape: {hist.shape}')
+    while shift: 
+        shift -= 1
+        hist = average_shift_hist(hist)
     return hist, bins
 
 
