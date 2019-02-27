@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 from scipy import ndimage
 from pyhist.iotools import import_zola
 import read_roi
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 
 def get_hist_zola(path, px=20, shift=1):
@@ -33,35 +37,61 @@ def hist3d(zyx, px:int=20, shift:int=0):
     max_lim = zyx.max(axis=0)
     limits = list(zip(min_lim, max_lim))
     bins = list(np.floor((max_lim - min_lim)/px))
-    #print(f'pixel: {px}')
-    #print(f'limits: {limits}')
-    #print(f'nbins: {bins}')
+    logger.debug(f'pixel: {px}')
+    logger.debug(f'limits: {limits}')
+    logger.debug(f'nbins: {bins}')
     hist, bins = np.histogramdd(zyx, bins=bins, range=limits)
-    #print(f'hist shape: {hist.shape}')
+    logger.debug(f'hist shape: {hist.shape}')
     while shift: 
         shift -= 1
         hist = average_shift_hist(hist)
     return hist, bins
 
-def hist2d(yx, px:int=20, shift:int=0):
+def hist2d(xy, px:int=20, shift:int=0, plot=False, vmax=None, cmap='hot'):
     '''
     Generates 2D histogram using numpy with given px and shift.
     Returns histogram, bins
     '''
     if px <=0: raise(ValueError(f'px must be positive number, got {px}'))
-    min_lim = yx.min(axis=0)
-    max_lim = yx.max(axis=0)
+    logger.debug(f'data shape: {xy.shape}')
+    assert xy.shape[0] > 0, 'data empty'
+    assert xy.shape[1] == 2, 'data shape wrong'
+    min_lim = xy.min(axis=0)
+    max_lim = xy.max(axis=0)
+    
     limits = list(zip(min_lim, max_lim))
+    
     bins = list(np.floor((max_lim - min_lim)/px))
-    #print(f'pixel: {px}')
-    #print(f'limits: {limits}')
-    #print(f'nbins: {bins}')
-    hist, bins = np.histogram2d(yx, bins=bins, range=limits)
-    #print(f'hist shape: {hist.shape}')
+    
+    logger.debug(f'pixel: {px}')
+    logger.debug(f'limits: {limits}')
+    logger.debug(f'nbins: {bins}')
+    
+    hist, xedges, yedges = np.histogram2d(x=xy[:,0].ravel(), y=xy[:,1].ravel(), bins=bins, range=limits)
+    logger.debug(f'hist shape: {hist.shape}')
     while shift: 
         shift -= 1
         hist = average_shift_hist(hist)
-    return hist, bins
+
+    if plot:
+        import itertools
+        merged = list(itertools.chain(*limits))
+        try:
+            plt.imshow(hist,
+                       cmap=cmap,
+                       vmax=vmax,
+                       interpolation=None,
+                       extent=[i/1000. for i in merged])
+            plt.xlabel('x, µm')
+            plt.ylabel('y, µm')
+            plt.axis('square')
+            plt.colorbar()
+            plt.show()
+        except ValueError as e:
+            print('plot canceled: ', e)
+            print(f'merged bins: {merged}')
+
+    return hist, limits
 
 
 def hist_from_zola_table(zola_table, px:int=20, shift:int=0):
